@@ -17,6 +17,8 @@ function convertMs(ms) {
 
 document.addEventListener('DOMContentLoaded', function() {
   const now = new Date();
+  let timerInterval;
+  let timerRunning = false;
 
   const options = {
     enableTime: true,
@@ -41,6 +43,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
   const flatpickrInstance = flatpickr("#datetime-picker", options);
 
+  document.querySelector('[data-start]').disabled = true;
+
   function addLeadingZero(value) {
     return String(value).padStart(2, '0');
   }
@@ -51,6 +55,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (remainingTime <= 0) {
       clearInterval(timerInterval);
       document.querySelector('[data-start]').disabled = false;
+      document.querySelector('#datetime-picker').disabled = false;
+      timerRunning = false;
       return;
     }
 
@@ -60,20 +66,23 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('[data-hours]').textContent = addLeadingZero(hours);
     document.querySelector('[data-minutes]').textContent = addLeadingZero(minutes);
     document.querySelector('[data-seconds]').textContent = addLeadingZero(seconds);
+    
+    document.querySelector('[data-start]').disabled = true;
+    document.querySelector('#datetime-picker').disabled = true; 
   }
 
-  let timerInterval;
-
   document.querySelector('[data-start]').addEventListener('click', function() {
-    const selectedDate = flatpickrInstance.selectedDates[0];
+    if (!timerRunning) {
+      const selectedDate = flatpickrInstance.selectedDates[0];
 
-    this.disabled = true;
+      this.disabled = true;
+      timerRunning = true;
 
-    timerInterval = setInterval(function() {
+      timerInterval = setInterval(function() {
+        updateTimer(selectedDate);
+      }, 1000);
+
       updateTimer(selectedDate);
-    }, 1000);
-
-    
-    updateTimer(selectedDate);
+    }
   });
 });
